@@ -1,0 +1,1 @@
+flask --app trip-system run --port=8080 --debug
