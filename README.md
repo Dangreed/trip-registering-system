@@ -1,5 +1,5 @@
-# Flight search service
-Fitfth project of non-relational databases
+# Trip registering system
+Fiftth project of non-relational databases
 
 > [!NOTE]
 **run.sh** for linux/mac, **run.bat** - for windows machines
