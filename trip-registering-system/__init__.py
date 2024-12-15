@@ -15,11 +15,7 @@ def create_app():
             'replication_factor': 1}
     ''')
     session.set_keyspace('nav')
-    # session.execute("DROP TABLE IF EXISTS clients")
-    # session.execute("DROP TABLE IF EXISTS cars")
-    # session.execute("DROP TABLE IF EXISTS client_trips")
-    # session.execute("DROP TABLE IF EXISTS car_trips")
-    # session.execute("DROP TABLE IF EXISTS points")
+    
     session.execute('''
         CREATE TABLE IF NOT EXISTS clients (
             client_id TEXT PRIMARY KEY,
@@ -48,7 +44,7 @@ def create_app():
             car TEXT,
             duration BIGINT,
             distance FLOAT,
-            PRIMARY KEY ((client_id, trip_id, finished)))
+            PRIMARY KEY ((client_id, finished), trip_id))
     ''')
 
     session.execute('''
@@ -59,7 +55,7 @@ def create_app():
             client_id TEXT,
             duration BIGINT,
             distance FLOAT,
-            PRIMARY KEY ((car, trip_id, finished)))
+            PRIMARY KEY ((car, finished), trip_id))
     ''')
 
     session.execute('''
@@ -129,7 +125,6 @@ def create_app():
     def get_car(clientId, carId):
         client = session.execute(f"SELECT * FROM clients WHERE client_id='{clientId}'")
         if client:
-            client = client[0]
             car = session.execute(f"SELECT * FROM cars WHERE client_id='{clientId}' AND vin='{carId}'")
             if car:
                 car = car[0]
@@ -148,12 +143,46 @@ def create_app():
     #Get all clients cars
     @app.route('/clients/<clientId>/cars', methods=['GET'])
     def get_clients_cars(clientId):
-        pass
+        client = session.execute(f"SELECT * FROM clients WHERE client_id='{clientId}'")
+        if client:
+            car_array = []
+            cars = session.execute(f"SELECT * FROM cars WHERE client_id='{clientId}'")
+            if cars:
+                for car in cars:
+                    car_info = {
+                        "client_id": car.client_id,
+                        "vin": car.vin,
+                        "model": car.model,
+                        "manufacturer": car.manufacturer,
+                        "plate": car.plate,
+                        "year": str(car.year)
+                    }
+                    car_array.append(car_info)
+                return car_array, 201
+        return {"message": 'Client not found'}, 404 
 
     #Delete client and all related info (cars, trips, etc.)
     @app.route('/clients/<clientId>', methods=['DELETE'])
     def delete_client(clientId):
-        pass
+        client = session.execute(f"SELECT * FROM clients WHERE client_id='{clientId}'")
+        if client:
+            cars = session.execute(f"SELECT vin FROM cars WHERE client_id='{clientId}'")
+            trips = session.execute(f"SELECT trip_id FROM client_trips WHERE client_id='{clientId}' AND finished=true")
+
+            for car in cars:
+                for trip in trips:
+                    session.execute(f"DELETE FROM car_trips WHERE car='{car.vin}' AND trip_id='{trip.trip_id}' AND finished=true IF EXISTS")
+
+            for trip in trips:
+                session.execute(f"DELETE FROM client_trips WHERE client_id='{clientId}' AND trip_id='{trip.trip_id}' AND finished=true IF EXISTS")
+            
+            for car in cars:
+                session.execute(f"DELETE FROM cars WHERE client_id='{clientId}' AND vin='{car.vin}' IF EXISTS")
+
+            session.execute(f"DELETE FROM clients WHERE client_id='{clientId}'")
+            return {"message": "Client deleted"}, 204
+        
+        return {"message": 'Client not found'}, 404 
     
     #Delete clients car
     @app.route('/clients/<clientId>/cars/<carId>', methods=['DELETE'])
