@@ -92,4 +92,7 @@
     201: {"timestamp": integer}
     400: Invalid input, timestamp lat or long missing
     404: Trip not found
+
+- cleanup, '/cleanup' [POST],
+    204: Cleanup successful
 ```
