@@ -46,7 +46,7 @@ def create_app():
             finished BOOLEAN,
             car TEXT,
             duration BIGINT,
-            distance FLOAT,
+            distance DOUBLE,
             PRIMARY KEY ((client_id, finished), trip_id))
     ''')
 
@@ -57,7 +57,7 @@ def create_app():
             finished BOOLEAN,
             client_id TEXT,
             duration BIGINT,
-            distance FLOAT,
+            distance DOUBLE,
             PRIMARY KEY ((car, finished), trip_id))
     ''')
 
@@ -67,7 +67,7 @@ def create_app():
             timestamp TIMESTAMP,
             lat DOUBLE,
             long DOUBLE,
-            dist_from_prev FLOAT,
+            dist_from_prev DOUBLE,
             PRIMARY KEY ((trip_id), timestamp)
         ) WITH CLUSTERING ORDER BY (timestamp DESC);
     ''')
@@ -219,7 +219,7 @@ def create_app():
 
         if result:
             row = result[0]
-            duration = int((row.last - row.first).total_seconds())
+            duration = int((row.first - row.last).total_seconds())
             session.execute('''
                 DELETE FROM client_trips
                 WHERE client_id = %s AND finished = %s AND trip_id = %s
@@ -259,18 +259,24 @@ def create_app():
                 "duration": trip.duration,
                 "distance": trip.distance
             }
-            return trip_info, 201
+            return trip_info, 200
         return {"message": 'Trip not found'}, 404
 
-    #Delete clients trip (in both trip tables), finished = True
+    #Delete clients trip (in both trip tables), finished = True/False
     @app.route('/clients/<clientId>/cars/<carId>/trips/<tripId>', methods=['DELETE'])
     def delete_trip(clientId, carId, tripId):
-        trip = session.execute(f"SELECT * FROM client_trips WHERE client_id='{clientId}' AND finished=true")
-        if trip:
-            session.execute(f"DELETE FROM client_trips WHERE client_id='{clientId}' AND finished=true AND trip_id='{tripId}' IF EXISTS")
-            session.execute(f"DELETE FROM car_trips WHERE car='{carId}' AND finished=true AND trip_id='{tripId}' IF EXISTS")
+        results = []
+        results.append(session.execute(f"DELETE FROM client_trips WHERE client_id='{clientId}' AND finished=true AND trip_id='{tripId}' IF EXISTS"))
+        results.append(session.execute(f"DELETE FROM client_trips WHERE client_id='{clientId}' AND finished=false AND trip_id='{tripId}' IF EXISTS"))
+        results.append(session.execute(f"DELETE FROM car_trips WHERE car='{carId}' AND finished=true AND trip_id='{tripId}' IF EXISTS"))
+        results.append(session.execute(f"DELETE FROM car_trips WHERE car='{carId}' AND finished=false AND trip_id='{tripId}' IF EXISTS"))
+
+        delete_count = sum(1 for result in results if result.was_applied)
+
+        if delete_count >= 2:
             return {"message": "Trip deleted"}, 204
-        return {"message": 'Trip not found'}, 404
+        else:
+            return {"message": "Trip not found"}, 404
 
     #Get all clients trips (from CLIENT_TRIPS table), finished = True
     @app.route('/clients/<clientId>/trips', methods=['GET'])
@@ -305,8 +311,9 @@ def create_app():
             if row.trip_count > 0:
                 return {
                     "car": carId,
-                    "total_duration": humanize.naturaldelta(timedelta(seconds=row.total_duration)),
-                    "total_distance": row.total_distance
+                    "duration": row.total_duration,
+                    # humanize.naturaldelta(timedelta(seconds=row.total_duration)),
+                    "distance": row.total_distance
                 }, 200
             else:
                 return {"message": "No trips found for the specified car"}, 404
