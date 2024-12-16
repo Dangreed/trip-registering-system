@@ -78,7 +78,7 @@ URL: '/clients'
 ```
 ***Responses***
 ```json
-- 201: {"id": string}
+- 201: {"id": "string"}
 - 400: Invalid input, missing name, surname, email or birth date.
 ```
 ---
@@ -90,11 +90,11 @@ URL: '/clients/<clientId>'
 ***Responses***
 ```json
 - 200: {
-    "client_id": string,
-    "name": string,
-    "surname": string,
-    "email": string,
-    "birth_date": string
+    "client_id": "string",
+    "name": "string",
+    "surname": "string",
+    "email": "string",
+    "birth_date": "string"
 }   
 - 404: Client not found.
 ```
@@ -119,16 +119,16 @@ URL: '/clients/<clientId>/cars'
 ***Payload***
 ```json
 {   
-    "vin": string,
-    "model": string,
-    "manufacturer": string,
-    "plate": string,
-    "manufacturing_date": string
+    "vin": "string",
+    "model": "string",
+    "manufacturer": "string",
+    "plate": "string",
+    "manufacturing_date": "string"
 }
 ```
 ***Responses***
 ```json
-- 201: {"id": string}. 
+- 201: {"id": "string"}. 
 - 404: Client not found.
 ```
 
@@ -141,12 +141,12 @@ URL: '/clients/<clientId>/cars/<carId>'
 ***Responses***
 ```json
 - 201: {
-        "client_id": string,
-        "vin":  string,
-        "model": string,
-        "manufacturer": string,
-        "plate": string,
-        "year": string
+        "client_id": "string",
+        "vin":  "string",
+        "model": "string",
+        "manufacturer": "string",
+        "plate": "string",
+        "year": "string"
 }
 - 404: Client not found. Car not found
 ```
@@ -160,12 +160,12 @@ URL: '/clients/<clientId>/cars'
 ***Responses***
 ```json
 - 201: [{
-        "client_id": string,
-        "vin":  string,
-        "model": string,
-        "manufacturer": string,
-        "plate": string,
-        "year": string
+        "client_id": "string",
+        "vin":  "string",
+        "model": "string",
+        "manufacturer": "string",
+        "plate": "string",
+        "year": "string"
 }]
 - 404: Client not found. Car not found
 ```
@@ -190,7 +190,7 @@ URL: '/clients/<clientId>/cars/<carId>/trips'
 ```
 ***Responses***
 ```json
-- 201: {"id": string}
+- 201: {"id": "string"}
 - 404: Client not found. Car not found.
 ```
 
@@ -215,11 +215,11 @@ URL: '/clients/<clientId>/cars/<carId>/trips/<tripId>'
 ***Responses***
 ```json
 - 201: {
-        "client_id": string,
-        "trip_id": string,
-        "car": string,
-        "duration": integer,
-        "distance": float
+        "client_id": "string",
+        "trip_id": "string",
+        "car": "string",
+        "duration": "integer",
+        "distance": "float"
 }
 - 404: Client not found. Trip not found
 ```
@@ -245,11 +245,11 @@ URL: '/clients/<clientId>/trips'
 ***Responses***
 ```json
 - 201: [{
-        "client_id": string,
-        "trip_id": string,
-        "car": string,
-        "duration": integer,
-        "distance": float
+        "client_id": "string",
+        "trip_id": "string",
+        "car": "string",
+        "duration": "integer",
+        "distance": "float"
 }]
 - 404: Client not found
 ```
@@ -263,9 +263,9 @@ URL: '/cars/<carId>/trips'
 ***Responses***
 ```json
 - 201: {
-        "car": string,
-        "total_duration": integer,
-        "total_distance": float
+        "car": "string",
+        "total_duration": "integer",
+        "total_distance": "float"
     }
 - 404: Car not found
 ```
@@ -279,14 +279,14 @@ URL: '/points/<tripId>'
 ***Payload***
 ```json
 {   
-    "timestamp": integer,
-    "lat": float,
-    "long": float
+    "timestamp": "integer",
+    "lat": "float",
+    "long": "float"
 }
 ```
 ***Responses***
 ```json
-- 201: {"timestamp": integer}
+- 201: {"timestamp": "integer"}
 - 400: Invalid input, timestamp lat or long missing
 - 404: Trip not found
 ```  
