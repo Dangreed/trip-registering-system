@@ -3,7 +3,7 @@
 ## Tables
 ***Client***
 ```SQL
-client_id uuid PRIMARY KEY,
+client_id text PRIMARY KEY,
 name text,
 surname text,
 email text,
@@ -12,7 +12,7 @@ birth date
 
 ***Car***
 ```SQL
-client_id uuid,
+client_id text,
 VIN text,
 model text,
 manufacturer text,    
@@ -23,13 +23,13 @@ PRIMARY KEY ((client_id), VIN)
 
 ***CLient trips***
 ```SQL
-client_id uuid,
-trip_id uuid,
+client_id text,
+trip_id text,
 finished boolean,
 car text,
 duration bigint,
 distance float,
-PRIMARY KEY ((client_id, trip_id, finished))
+PRIMARY KEY ((client_id, trip_id) ,finished)
 ```
 
 ***Car trips***
@@ -40,12 +40,12 @@ finished boolean,
 client_id text,
 duration bigint,
 distance float,
-PRIMARY KEY ((car, trip_id, finished))
+PRIMARY KEY ((car, trip_id), finished)
 ``` 
 
 ***Points***
 ```SQL
-trip_id uuid,
+trip_id text,
 timestamp timestamp,
 lat double,
 long double,
