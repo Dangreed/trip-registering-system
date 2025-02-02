@@ -3,53 +3,56 @@
 ## Tables
 ***Client***
 ```SQL
-client_id text PRIMARY KEY,
-name text,
-surname text,
-email text,
-birth date  
+client_id TEXT PRIMARY KEY,
+name TEXT,
+surname TEXT,
+email TEXT,
+birth_date DATE
 ```
 
 ***Car***
 ```SQL
-client_id text,
-VIN text,
-model text,
-manufacturer text,    
-plate text,
-year date(?),
-PRIMARY KEY ((client_id), VIN)
+client_id TEXT,
+vin TEXT,
+model TEXT,
+manufacturer TEXT,
+plate TEXT,
+year DATE,
+PRIMARY KEY ((client_id), vin)) 
 ```
 
-***CLient trips***
+***Client trips***
 ```SQL
-client_id text,
-trip_id text,
-finished boolean,
-car text,
-duration bigint,
-distance float,
-PRIMARY KEY ((client_id, trip_id) ,finished)
+client_id TEXT,
+trip_id TEXT,
+finished BOOLEAN,
+car TEXT,
+duration BIGINT,
+distance DOUBLE,
+PRIMARY KEY ((client_id, finished), trip_id))
 ```
 
 ***Car trips***
 ```SQL
-car text,
-trip_id uuid,
-finished boolean,
-client_id text,
-duration bigint,
-distance float,
-PRIMARY KEY ((car, trip_id), finished)
+car TEXT,
+trip_id TEXT,
+finished BOOLEAN,
+client_id TEXT,
+duration BIGINT,
+distance DOUBLE,
+PRIMARY KEY ((car, finished), trip_id))
 ``` 
 
 ***Points***
 ```SQL
-trip_id text,
-timestamp timestamp,
-lat double,
-long double,
-dist_from_prev float,
+(
+    trip_id TEXT,
+    timestamp TIMESTAMP,
+    lat DOUBLE,
+    long DOUBLE,
+    dist_from_prev DOUBLE,
+    PRIMARY KEY ((trip_id), timestamp)
+) WITH CLUSTERING ORDER BY (timestamp DESC);
 ```
 
 ## Codes
@@ -62,7 +65,7 @@ dist_from_prev float,
 
 ## Methods
 
-**- Užregistruoti klientą**
+### Register a client
 ```
 Request: PUT  
 URL: '/clients' 
@@ -77,41 +80,41 @@ URL: '/clients'
 }
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {"id": "string"}
-- 400: Invalid input, missing name, surname, email or birth date.
+ {"id": "string"}
 ```
+- 400: `Invalid input, missing name, surname, email or birth date.`
 ---
-**- Gauti kliento informaciją**
+### Get client's info
 ```
 Request: GET 
 URL: '/clients/<clientId>' 
 ```
 ***Responses***
+- 200:
 ```json
-- 200: {
+{
     "client_id": "string",
     "name": "string",
     "surname": "string",
     "email": "string",
     "birth_date": "string"
-}   
-- 404: Client not found.
+}
 ```
+- 404: `Client not found.`
 ---
-**- Ištrinti klientą**
+### Delete a client
 ```js
 Request: PUT  
 URL: '/clients/<clientId>'
 ```
 ***Responses***
-```json
-- 204: Client deleted. 
-- 404: Client not found.
-```
+- 204: `Client deleted.`
+- 404: `Client not found.`
 
 ---
-**- Užregistruoti automobilį**
+### Register a car
 ```js
 Request: PUT  
 URL: '/clients/<clientId>/cars' 
@@ -127,20 +130,22 @@ URL: '/clients/<clientId>/cars'
 }
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {"id": "string"}. 
-- 404: Client not found.
+{"id": "string"}
 ```
+- 404: `Client not found.`
 
 ---
-**- Gauti automobilio informaciją**
+### Get car's info
 ```js
 Request: GET  
 URL: '/clients/<clientId>/cars/<carId>' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {
+{
         "client_id": "string",
         "vin":  "string",
         "model": "string",
@@ -148,18 +153,19 @@ URL: '/clients/<clientId>/cars/<carId>'
         "plate": "string",
         "year": "string"
 }
-- 404: Client not found. Car not found
 ```
+- 404: `Client not found. Car not found`
 
 ---
-**- Gauti kliento auotmobilius**
+### Get client's cars
 ```js
 Request: GET  
 URL: '/clients/<clientId>/cars' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: [{
+[{
         "client_id": "string",
         "vin":  "string",
         "model": "string",
@@ -167,111 +173,110 @@ URL: '/clients/<clientId>/cars'
         "plate": "string",
         "year": "string"
 }]
-- 404: Client not found. Car not found
 ```
+- 404: `Client not found. Car not found`
 
 ---
-**- Ištrinti kliento automobilį**
+### Delete a car
 ```js
 Request: DELETE  
 URL: '/clients/<clientId>/cars/<carId>' 
 ```
 ***Responses***
-```json
-- 204: Car deleted.
-- 404: Client not found. Car not found
-```
+- 204: `Car deleted.`
+- 404: `Client not found. Car not found`
 
 ---
-**- Užregistruoti kelionę**
+### Register a trip
 ```js
 Request: PUT  
 URL: '/clients/<clientId>/cars/<carId>/trips' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {"id": "string"}
-- 404: Client not found. Car not found.
+{"id": "string"}
 ```
+- 404: `Client not found. Car not found.`
+
 
 ---
-**- Užbaigti kelionę**
+### End a trip
 ```js
 Request: POST  
 URL: '/clients/<clientId>/cars/<carId>/trips/<tripId>' 
 ```
 ***Responses***
-```json
-- 200: Trip marked as finihed.
-- 404: Trip not found.
-```
+- 200: `Trip marked as finihed.`
+- 404: `Trip not found.`
 
 ---
-**- Gauti kelionės informaciją**
+### Get trip's info
 ```js
 Request: GET
 URL: '/clients/<clientId>/cars/<carId>/trips/<tripId>' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {
+{
         "client_id": "string",
         "trip_id": "string",
         "car": "string",
         "duration": "integer",
         "distance": "float"
 }
-- 404: Client not found. Trip not found
 ```
+- 404: `Client not found. Trip not found`
 
 ---
-**- Ištrinti kelionę**
+### Delete a trip
 ```js
 Request: DELETE 
 URL: '/clients/<clientId>/cars/<carId>/trips/<tripId>' 
 ```
 ***Responses***
-```json
-- 204: Trip deleted.
-- 404: Client not found.
-```
+- 204: `Trip deleted.`
+- 404: `Client not found.`
 
 ---
-**- Gauti kliento keliones**
+### Get client's trips
 ```js
 Request: GET 
 URL: '/clients/<clientId>/trips' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: [{
+[{
         "client_id": "string",
         "trip_id": "string",
         "car": "string",
         "duration": "integer",
         "distance": "float"
 }]
-- 404: Client not found
 ```
+- 404: `Client not found`
 
 ---
-**- Gauti automobilio keliones**
+### Get trips by car
 ```js
 Request: GET  
 URL: '/cars/<carId>/trips' 
 ```
 ***Responses***
+- 201:
 ```json
-- 201: {
+{
         "car": "string",
         "total_duration": "integer",
         "total_distance": "float"
     }
-- 404: Car not found
 ```
+- 404: `Car not found`
 
 ---
-**- Pridėti naują tašką**
+### Add a new point
 ```js
 Request: PUT 
 URL: '/points/<tripId>' 
@@ -285,22 +290,18 @@ URL: '/points/<tripId>'
 }
 ```
 ***Responses***
+- 201: 
 ```json
-- 201: {"timestamp": "integer"}
-- 400: Invalid input, timestamp lat or long missing
-- 404: Trip not found
-```  
+{"timestamp": "integer"}
+```
+- 400: `Invalid input, timestamp lat or long missing`
+- 404: `Trip not found`
 
 ---
-**- Išvalyti duomenų bazę**
+### Cleanup
 ```js
 Request: POST 
 URL: '/cleanup' 
 ```
 ***Responses***
-```json
-- 204: Cleanup successful.
-```  
-
-
-
+- 204: `Cleanup successful.`
